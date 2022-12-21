@@ -17,11 +17,14 @@ public class BookingDto {
     private int guestAmount;
     private String bookingStatus;
     private String guestStatus;
+    @NotNull
     private double priceForStay;
     @NotNull
     private UUID userId;
     @NotNull
     private UUID propertyId;
+    @NotEmpty
+    private String propertyName;
 
 
 }
