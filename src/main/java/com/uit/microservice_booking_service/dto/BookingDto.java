@@ -3,24 +3,28 @@ package com.uit.microservice_booking_service.dto;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
 public class BookingDto {
-    @NotEmpty
+    @NotNull
     private LocalDateTime checkIn;
-    @NotEmpty
+    @NotNull
     private LocalDateTime checkOut;
-    @NotEmpty
+    @NotNull
     private int guestAmount;
     private String bookingStatus;
     private String guestStatus;
+    @NotNull
     private double priceForStay;
-    @NotEmpty
+    @NotNull
     private UUID userId;
-    @NotEmpty
+    @NotNull
     private UUID propertyId;
+    @NotEmpty
+    private String propertyName;
 
 
 }
