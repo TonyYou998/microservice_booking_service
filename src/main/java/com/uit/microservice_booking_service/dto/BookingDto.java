@@ -10,21 +10,24 @@ import java.util.UUID;
 @Data
 public class BookingDto {
     @NotNull
-    private LocalDateTime checkIn;
+    private LocalDateTime checkInDate;
     @NotNull
-    private LocalDateTime checkOut;
+    private LocalDateTime checkOutDate;
     @NotNull
     private int guestAmount;
     private String bookingStatus;
     private String guestStatus;
-    @NotNull
     private double priceForStay;
+    private String userId;
     @NotNull
-    private UUID userId;
-    @NotNull
-    private UUID propertyId;
-    @NotEmpty
+    private String propertyId;
     private String propertyName;
+    @NotNull
+    private int amount;
+    @NotNull
+    private String currency;
+    @NotNull
+    private String token;
 
 
 }

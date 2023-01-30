@@ -5,36 +5,42 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
-import com.uit.microservice_booking_service.dto.BookingDto;
 import com.uit.microservice_booking_service.entities.Booking;
 import com.uit.microservice_booking_service.repository.BookingRepository;
+import dto.BookingDto;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @AllArgsConstructor
 @Service
 public class BookingServiceImpl implements BookingService{
     private BookingRepository bookingRepository;
+    private RestTemplate restTemplate;
     private ModelMapper mapper;
 //    private  Stripe stripe;
     @Override
-    public BookingDto reserve(BookingDto dto) {
-        Booking b=new Booking();
-        b.setPropertyId(dto.getPropertyId());
-        b.setUserId(dto.getUserId());
-        b.setCheckInDate(dto.getCheckIn());
-        b.setCheckOutDate(dto.getCheckOut());
-        b.setGuestStatus("NOT CHECKIN");
-        b.setGuestAmount(dto.getGuestAmount());
-        bookingRepository.save(b);
-        dto= mapper.map(b,BookingDto.class);
-        return dto;
+    public BookingDto reserve(Charge c, BookingDto dto, String token) {
+        UUID userId=  restTemplate.getForObject("http://user/api/v1/user/get-id?token="+token, UUID.class);
+        UUID hostId=restTemplate.getForObject("http://host/api/v1/host/get-host-by-property-id/"+dto.getPropertyId(), UUID.class);
+        if(c.getId()!=null && userId!=null){
+            Booking b=new Booking();
+            b.setPropertyId(UUID.fromString(dto.getPropertyId()));
+            b.setUserId(userId);
+            b.setCheckInDate(dto.getCheckInDate());
+            b.setCheckOutDate(dto.getCheckOutDate());
+            b.setGuestStatus("NOT CHECKIN");
+            b.setGuestAmount(dto.getGuestAmount());
+            b.setHostId(hostId);
+            bookingRepository.save(b);
+            dto= mapper.map(b,BookingDto.class);
+            return dto;
+        }
+        return  null;
+
     }
 
     @Override
@@ -65,22 +71,57 @@ public class BookingServiceImpl implements BookingService{
     }
 
     @Override
-    public Charge createPayment(int amount, String token, String currency) throws StripeException {
+    public Charge createPayment(BookingDto dto) throws StripeException {
         Map<String, Object> chargeParams = new HashMap<>();
-        chargeParams.put("amount", amount*10);
-        chargeParams.put("currency", currency);
-        chargeParams.put("source", token);
+        chargeParams.put("amount", dto.getAmount()*10);
+        chargeParams.put("currency", dto.getCurrency());
+        chargeParams.put("source", dto.getToken());
 
-        return Charge.create(chargeParams);
-//        PaymentIntentCreateParams parmas=PaymentIntentCreateParams
-//                .builder()
-//                .setAmount((long) amount)
-//                .setCurrency("usd")
-//                .addPaymentMethodType("card")
-//                .build();
-//        PaymentIntent paymentIntent= PaymentIntent.create(parmas);
-//        return  paymentIntent;
+        Charge chargeCreate= Charge.create(chargeParams);
+       return  chargeCreate;
     }
+    @Override
+    public List<BookingDto> getBookingByUserId(String token) {
+        try{
+            UUID uuid=restTemplate.getForObject("http://user/api/v1/user/get-id?token="+token, UUID.class);
+            List<BookingDto> lstDto=new LinkedList<>();
+            if(uuid!=null){
+               List<Booking> lstBooking= bookingRepository.findBookingByUserId(uuid);
+               for(Booking i:lstBooking){
+                 BookingDto dto=mapper.map(i,BookingDto.class);
+                 lstDto.add(dto);
+               }
+            }
+            return lstDto;
+        }
+        catch (Exception e){
+            return null;
+        }
+    }
+
+    @Override
+    public List<BookingDto> getBookingByPropertyId(String propertyId, UUID hostId) {
+        try {
+            bookingRepository.findBookingByPropertyIdAndHostId(UUID.fromString(propertyId),hostId);
+        }
+        catch (Exception e){
+
+        }
+        return null;
+    }
+
+    @Override
+    public UUID getHostIdByToken(String token) {
+        try {
+            UUID hostId=restTemplate.getForObject("http://user/api/v1/user/get-id?token="+token, UUID.class);
+            return hostId;
+        }
+
+        catch(Exception e){
+            return null;
+        }
+    }
+
 
     SessionCreateParams.LineItem createSessionLineItem(BookingDto dto) {
         return SessionCreateParams.LineItem.builder()

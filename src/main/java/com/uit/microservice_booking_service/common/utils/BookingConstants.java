@@ -1,6 +1,7 @@
 package com.uit.microservice_booking_service.common.utils;
 
-import com.uit.microservice_base_project.common.BaseConstant;
+
+import common.BaseConstant;
 
 public class BookingConstants extends BaseConstant {
 
@@ -8,4 +9,6 @@ public class BookingConstants extends BaseConstant {
     public static final String RESERVE = "/reserve";
     public static final String CREATE_CHECKOUT_SESSION = "/create-checkout-session";
     public static final String CHECKOUT = "/checkout";
+    public static final String GET_BOOKING_BY_USER_ID = "/get-booking";
+    public static final String GET_BOOKING_BY_PROPERTY_ID = "/get-booking?propertyId={uid}";
 }
