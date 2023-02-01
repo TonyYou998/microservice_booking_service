@@ -33,6 +33,8 @@ public class BookingServiceImpl implements BookingService{
             b.setCheckInDate(dto.getCheckInDate());
             b.setCheckOutDate(dto.getCheckOutDate());
             b.setGuestStatus("NOT CHECKIN");
+            b.setBookingStatus("COMING SOON");
+            b.setPriceForStay(c.getAmount());
             b.setGuestAmount(dto.getGuestAmount());
             b.setHostId(hostId);
             bookingRepository.save(b);
@@ -102,12 +104,19 @@ public class BookingServiceImpl implements BookingService{
     @Override
     public List<BookingDto> getBookingByPropertyId(String propertyId, UUID hostId) {
         try {
-            bookingRepository.findBookingByPropertyIdAndHostId(UUID.fromString(propertyId),hostId);
+             List<Booking> lstBooking= bookingRepository.findBookingByPropertyIdAndHostId(UUID.fromString(propertyId),hostId);
+             List<BookingDto> lstDto=new LinkedList<>();
+             lstBooking.forEach((item)->{
+                 BookingDto dto= mapper.map(item,BookingDto.class);
+                 lstDto.add(dto);
+             });
+             return lstDto;
+//            bookingRepository.findBookingByPropertyId(UUID.fromString(propertyId));
         }
         catch (Exception e){
-
+                return null;
         }
-        return null;
+
     }
 
     @Override

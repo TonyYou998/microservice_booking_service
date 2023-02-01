@@ -56,11 +56,15 @@ public class BookingController {
          return new ResponseEntity<>(response,HttpStatus.OK);
     }
     @GetMapping(BookingConstants.GET_BOOKING_BY_PROPERTY_ID)
-    public Object getBookingByPropertyId(@RequestHeader(name = AUTHORIZATION_HEADER,defaultValue = "") String token, @RequestHeader(name=ROLE_HEADER,defaultValue = "")String role, @PathVariable String uid){
+    public Object getBookingByPropertyId(@RequestHeader(name = AUTHORIZATION_HEADER,defaultValue = "") String token, @RequestHeader(name=ROLE_HEADER,defaultValue = "")String role, @RequestParam("propertyId") String propertyId){
         UUID hostId= bookingService.getHostIdByToken(token);
-        return bookingService.getBookingByPropertyId(uid,hostId);
+        Object response=ResponseHandler.getResponse(bookingService.getBookingByPropertyId(propertyId,hostId));
+        return new ResponseEntity<>(response,HttpStatus.OK);
+
 
     }
+
+
 
 }
 
