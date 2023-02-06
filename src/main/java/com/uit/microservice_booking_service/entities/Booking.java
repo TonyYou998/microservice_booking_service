@@ -22,6 +22,7 @@ public class Booking extends BaseEntity {
     @Type(type = "uuid-char")
     @GenericGenerator(name = "UUID",strategy = "org.hibernate.id.UUIDGenerator")
     private UUID hostId;
+    private String image;
     private LocalDateTime checkInDate;
     private LocalDateTime checkOutDate;
     private int guestAmount;

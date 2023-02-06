@@ -8,6 +8,7 @@ import com.stripe.param.checkout.SessionCreateParams;
 import com.uit.microservice_booking_service.entities.Booking;
 import com.uit.microservice_booking_service.repository.BookingRepository;
 import dto.BookingDto;
+import dto.GetPropertyDto;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,8 @@ public class BookingServiceImpl implements BookingService{
     @Override
     public BookingDto reserve(Charge c, BookingDto dto, String token) {
         UUID userId=  restTemplate.getForObject("http://user/api/v1/user/get-id?token="+token, UUID.class);
-        UUID hostId=restTemplate.getForObject("http://host/api/v1/host/get-host-by-property-id/"+dto.getPropertyId(), UUID.class);
+//        UUID hostId=restTemplate.getForObject("http://host/api/v1/host/get-host-by-property-id/"+dto.getPropertyId(), UUID.class);
+        GetPropertyDto getPropertyDto=restTemplate.getForObject("http://host/api/v1/host/get-property-by-id/"+dto.getPropertyId(), GetPropertyDto.class);
         if(c.getId()!=null && userId!=null){
             Booking b=new Booking();
             b.setPropertyId(UUID.fromString(dto.getPropertyId()));
@@ -36,7 +38,9 @@ public class BookingServiceImpl implements BookingService{
             b.setBookingStatus("COMING SOON");
             b.setPriceForStay(c.getAmount());
             b.setGuestAmount(dto.getGuestAmount());
-            b.setHostId(hostId);
+            b.setHostId(UUID.fromString(getPropertyDto.getHostUser()));
+            b.setImage(getPropertyDto.getImages());
+
             bookingRepository.save(b);
             dto= mapper.map(b,BookingDto.class);
             return dto;
