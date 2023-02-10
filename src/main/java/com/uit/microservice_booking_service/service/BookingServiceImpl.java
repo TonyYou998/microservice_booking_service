@@ -39,7 +39,9 @@ public class BookingServiceImpl implements BookingService{
             b.setPriceForStay(c.getAmount());
             b.setGuestAmount(dto.getGuestAmount());
             b.setHostId(UUID.fromString(getPropertyDto.getHostUser()));
-            b.setImage(getPropertyDto.getImages());
+            b.setImages(getPropertyDto.getImages());
+            b.setPropertyName(getPropertyDto.getPropertyName());
+            b.setAddress(getPropertyDto.getAddress());
 
             bookingRepository.save(b);
             dto= mapper.map(b,BookingDto.class);
